@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Next.js v16.2.6 Bug Report: Client-Side Interactivity Freeze on Back Button Navigation
 
-## Getting Started
+This repository serves as a Minimal Reproducible Example (MRE) created to document and report a critical regression found in **Next.js v16.2.6**. 
 
-First, run the development server:
+* **Reproduction Repository:** [nextjs-16.2.6-bug-report](https://github.com/barisdemirr/nextjs-16.2.6-bug-report)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🛠️ To Reproduce
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. Start the development server (`npm run dev`).
+2. Open the application in any browser (Chrome, Edge, etc.).
+3. Navigate from the initial page to any other route using client-side navigation.
+4. Click the browser's **"Back"** button to return to the previous page.
+5. Try interacting with any element that requires JavaScript (or check if initial scripts run).
+6. Observe that **scripts are not executing and no errors are logged in the console**.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## 🔄 Current vs. Expected Behavior
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+* **Current Behavior:** Upon navigating back via browser history, the page UI restores visually from the cache perfectly. However, all client-side JavaScript execution completely freezes up, and client-side interactions become totally unresponsive with absolute lack of error logs, warnings, or stack traces in the browser console.
+* **Expected Behavior:** When navigating back via the browser history, the page should restore correctly, and all client-side scripts should execute and remain functional without silent failures.
 
-## Learn More
+## 💻 Environment Information
 
-To learn more about Next.js, take a look at the following resources:
+* **OS:** Windows 10 Pro
+* **Browsers:** Tested and verified on multiple browsers (Chrome, Edge, etc.)
+* **Next.js Version:** 16.2.6 (Regression present)
+* **Node.js Version:** v24.11.1
+* **React Version:** 19.2.4
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 🎯 Affected Scope
+* **Affected Area(s):** Cache Components, Script (`next/script`), Route Handlers
+* **Affected Stage(s):** `next dev` (local), `next build` (local)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📝 Additional Context
 
-## Deploy on Vercel
+This issue was highly frustrating to debug because of the absolute lack of error logs, warnings, or stack traces in the browser console. The page visually restores itself from the cache perfectly, but all JavaScript execution completely freezes up and client-side interactions become totally unresponsive only after using the browser's "Back" button.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+I tested this behavior thoroughly across multiple browsers (including Chrome and Edge) on Windows 10 Pro, and the result is entirely consistent. It acts as a major blocker for daily local development since history navigation is a frequent part of the workflow.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The issue only triggered immediately after upgrading to Next.js v16.2.6. Rolling back to the previous working version instantly resolved the issue, which strongly indicates a regression within the router's client-side caching mechanism or bfcache handling in this specific release.
